@@ -12,6 +12,9 @@ jobs:
     name: Build on ${{ matrix.os }} with Node.js ${{ matrix.node-version }}
     runs-on: ${{ matrix.os }}
     
+    permissions:
+      contents: read
+    
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
