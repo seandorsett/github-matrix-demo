@@ -40,12 +40,24 @@ jobs:
       run: npm test
     
     - name: Start server (background)
+      run: npm start &
+      shell: bash
+    
+    - name: Wait for server to be ready
       run: |
-        npm start &
-        sleep 5
+        echo "Waiting for server to start..."
+        for i in {1..30}; do
+          if curl -f http://localhost:3000/health > /dev/null 2>&1; then
+            echo "Server is ready!"
+            exit 0
+          fi
+          echo "Attempt $i: Server not ready yet, waiting..."
+          sleep 1
+        done
+        echo "Server failed to start within 30 seconds"
+        exit 1
       shell: bash
     
     - name: Verify server is running
-      run: |
-        curl -f http://localhost:3000/health || exit 1
+      run: curl -f http://localhost:3000/health
       shell: bash

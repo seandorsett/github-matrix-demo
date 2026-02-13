@@ -43,8 +43,11 @@ function assertExists(value, message) {
 // Start the server for testing
 const { app, server } = require('./server');
 
-// Give server time to start
-setTimeout(async () => {
+// Main test execution
+async function main() {
+  // Give server time to start
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
   const port = server.address().port;
   
   // Test 1: Server is running
@@ -103,4 +106,9 @@ setTimeout(async () => {
   // Run all tests then close server
   await runTests();
   server.close();
-}, 1000);
+}
+
+main().catch(err => {
+  console.error('Test execution failed:', err);
+  process.exit(1);
+});
