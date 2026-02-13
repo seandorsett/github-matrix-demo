@@ -1,0 +1,66 @@
+name: Matrix Build Demo
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Build on ${{ matrix.os }} with Node.js ${{ matrix.node-version }}
+    runs-on: ${{ matrix.os }}
+    
+    permissions:
+      contents: read
+    
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: [16.x, 18.x, 20.x]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+    
+    - name: Display environment info
+      run: |
+        echo "OS: ${{ matrix.os }}"
+        echo "Node.js version: ${{ matrix.node-version }}"
+        node --version
+        npm --version
+    
+    - name: Install dependencies
+      run: npm install
+    
+    - name: Run tests
+      run: npm test
+    
+    - name: Start server (background)
+      run: npm start &
+      shell: bash
+    
+    - name: Wait for server to be ready
+      run: |
+        echo "Waiting for server to start..."
+        for i in {1..30}; do
+          if curl -f http://localhost:3000/health > /dev/null 2>&1; then
+            echo "Server is ready!"
+            exit 0
+          fi
+          echo "Attempt $i: Server not ready yet, waiting..."
+          sleep 1
+        done
+        echo "Server failed to start within 30 seconds"
+        exit 1
+      shell: bash
+    
+    - name: Verify server is running
+      run: curl -f http://localhost:3000/health
+      shell: bash

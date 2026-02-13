@@ -1,0 +1,20 @@
+{
+  "name": "github-matrix-demo",
+  "version": "1.0.0",
+  "description": "A simple web app demonstrating matrix builds in GitHub Actions",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test.js"
+  },
+  "keywords": [
+    "matrix",
+    "github-actions",
+    "demo"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
