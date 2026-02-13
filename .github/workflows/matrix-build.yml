@@ -1,0 +1,51 @@
+name: Matrix Build Demo
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Build on ${{ matrix.os }} with Node.js ${{ matrix.node-version }}
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: [16.x, 18.x, 20.x]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+    
+    - name: Display environment info
+      run: |
+        echo "OS: ${{ matrix.os }}"
+        echo "Node.js version: ${{ matrix.node-version }}"
+        node --version
+        npm --version
+    
+    - name: Install dependencies
+      run: npm install
+    
+    - name: Run tests
+      run: npm test
+    
+    - name: Start server (background)
+      run: |
+        npm start &
+        sleep 5
+      shell: bash
+    
+    - name: Verify server is running
+      run: |
+        curl -f http://localhost:3000/health || exit 1
+      shell: bash
